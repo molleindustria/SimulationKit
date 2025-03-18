@@ -1,0 +1,46 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 69231d05094beea45b0de8c23bd01815, type: 3}
+  m_Name: hire
+  m_EditorClassIdentifier: 
+  title: Understaffed
+  description: The classes are getting big. We should hire more faculty.
+  condition: students>faculty*facultyRatio
+  number: 1
+  active: 1
+  illustration: {fileID: 21300000, guid: 513ad2eaf0ca5ae40bce673d38383b68, type: 3}
+  actions:
+  - description: Hire teaching prof ($1000)
+    condition: money>1000
+    effects:
+    - money-=1000
+    - teaching++
+    - faculty++
+    specialEffects: []
+  - description: Hire research prof ($2000)
+    condition: money>2000
+    effects:
+    - money-=2000
+    - research++
+    - faculty++
+    specialEffects: []
+  - description: Hire adjunct ($200)
+    condition: money>200
+    effects:
+    - money-=200
+    - faculty++
+    specialEffects: []
+  - description: Ignore
+    condition: 
+    effects:
+    - teaching--
+    specialEffects: []

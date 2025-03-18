@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 69231d05094beea45b0de8c23bd01815, type: 3}
+  m_Name: marketing
+  m_EditorClassIdentifier: 
+  title: Marketing
+  description: "We should spend more money on recruiting students\t\t\t\t\t"
+  condition: students<300
+  number: 1
+  active: 1
+  illustration: {fileID: 21300000, guid: 513ad2eaf0ca5ae40bce673d38383b68, type: 3}
+  actions:
+  - description: OK ($3000)
+    condition: money>3000
+    effects:
+    - money-=3000
+    - students+=20
+    specialEffects: []
+  - description: Not now
+    condition: 
+    effects: []
+    specialEffects: []
