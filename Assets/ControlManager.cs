@@ -327,6 +327,9 @@ public class ControlManager : MonoBehaviour
     {
         print(btn.name + " has been pressed");
 
+        if(selectedUnitButton != null)
+            DeselectUnitButton(selectedUnitButton);
+
         //for each of the effects
         foreach (string e in btn.effects)
         {
@@ -411,12 +414,14 @@ public class ControlManager : MonoBehaviour
     //the button deselected itself due to conditions 
     public void DeselectUnitButton(UnitButton btn)
     {
+        if (btn != null)
+        {
+            btn.Deselect();
+            selectedUnitButton = null;
 
-        btn.Deselect();
-        selectedUnitButton = null;
-
-        if (unitPreview != null)
-            Destroy(unitPreview);
+            if (unitPreview != null)
+                Destroy(unitPreview);
+        }
     }
 
     public void OnUnitButtonRelease(UnitButton btn)

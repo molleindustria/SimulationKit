@@ -91,17 +91,47 @@ public static class Evaluator
     public static bool EvaluateBool(string expression, List<Variable> vars)
     {
         expression = SubstituteVariables(expression, vars);
+        // Note: substitute random calls here too.
+        expression = SubstituteRandoms(expression);
         DataTable table = new DataTable();
         object result = table.Compute(expression, string.Empty);
         return Convert.ToBoolean(result);
     }
 
     // Helper: evaluates an arithmetic expression using DataTable.Compute.
+    // This version also substitutes any Random() calls.
     private static float EvaluateExpression(string expression)
+    {
+        // Replace any Random(min, max) calls with a random value.
+        expression = SubstituteRandoms(expression);
+        DataTable table = new DataTable();
+        object result = table.Compute(expression, string.Empty);
+        return (float)Convert.ToDouble(result);
+    }
+
+    // A helper that evaluates an expression without substituting Random calls.
+    // This is used inside SubstituteRandoms to avoid recursion.
+    private static float EvaluateExpressionNoRandom(string expression)
     {
         DataTable table = new DataTable();
         object result = table.Compute(expression, string.Empty);
         return (float)Convert.ToDouble(result);
+    }
+
+    // Substitutes calls of the form Random(min, max) with a random number.
+    private static string SubstituteRandoms(string expression)
+    {
+        // Regex pattern to capture "Random(min, max)"
+        return Regex.Replace(expression, @"Random\s*\(\s*(?<min>[^,]+?)\s*,\s*(?<max>[^)]+?)\s*\)", match =>
+        {
+            string minStr = match.Groups["min"].Value;
+            string maxStr = match.Groups["max"].Value;
+            // Evaluate the min and max parts without doing another random substitution.
+            float minVal = EvaluateExpressionNoRandom(minStr);
+            float maxVal = EvaluateExpressionNoRandom(maxStr);
+            float rnd = Mathf.Floor(UnityEngine.Random.Range(minVal, maxVal));
+            return rnd.ToString();
+        });
     }
 
     // Helper: substitutes variable names with their current values.
@@ -120,6 +150,10 @@ public static class Evaluator
         return Regex.Replace(expression, @"\b[a-zA-Z_]\w*\b", match =>
         {
             string token = match.Value;
+            // Skip our Random keyword so we don't accidentally substitute it.
+            if (token == "Random")
+                return token;
+
             if (variableDict.ContainsKey(token))
             {
                 return variableDict[token].ToString();

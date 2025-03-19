@@ -2654,6 +2654,9 @@ MonoBehaviour:
   mapContainer: {fileID: 0}
   labelField: {fileID: 872105767}
   previewUnitZ: -1
+  TURN_DURATION: 2
+  turns: 0
+  turnCounter: 0
   onUI: 0
 --- !u!1 &1912118935
 GameObject:
