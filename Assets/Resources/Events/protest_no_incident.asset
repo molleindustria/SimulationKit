@@ -10,19 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 69231d05094beea45b0de8c23bd01815, type: 3}
-  m_Name: last_card
+  m_Name: protest_no_incident
   m_EditorClassIdentifier: 
-  title: End of the fiscal year
-  description: Tuition money is added. Students X Tuition = revenue.
+  title: No incidents
+  description: The police showed up, there were some tensions but the protest ended
+    without incidents. (this card is inactive and only triggered by RandomChain on
+    the event protest)
   condition: 
   number: 1
   active: 0
   discarded: 0
-  illustration: {fileID: 21300000, guid: 513ad2eaf0ca5ae40bce673d38383b68, type: 3}
+  illustration: {fileID: 0}
   actions:
   - description: Ok
     condition: 
-    effects:
-    - money=money+tuition*students
-    specialEffects:
-    - Chain(new_year_card)
+    effects: []
+    specialEffects: []

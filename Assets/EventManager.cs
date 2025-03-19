@@ -4,6 +4,8 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using Tweens;
+using System.Text.RegularExpressions;
+
 
 public class EventManager : MonoBehaviour
 {
@@ -183,6 +185,7 @@ public class EventManager : MonoBehaviour
         //if reaching the end of the deck reshuffle
     }
 
+
     public void CheckConditions()
     {
         //since things may have changed, check the conditions of each event
@@ -333,89 +336,145 @@ public class EventManager : MonoBehaviour
         StartCoroutine(turnCoroutine);
     }
 
-    //some examples of special effects 
-    //determining by parsing a string
+    
     void SpecialEffect(string effect)
     {
-        print("Executing special effect " + effect);
+        Debug.Log("Executing special effect: " + effect);
 
-        //try to parse command:argument syntax
-        string[] eff = effect.Split(":");
-        string command = "";
-        string argument = "";
-
-        if (eff.Length == 2)
+        // Regex pattern explanation:
+        // ^(?<effectName>\w+)         : capture the effectName at the start (one or more word characters)
+        // (?:\((?<args>.*)\))?      : optionally, capture everything between '(' and ')' as 'args'
+        // $                        : end of the string.
+        Regex regex = new Regex(@"^(?<effectName>\w+)(?:\((?<args>.*)\))?$", RegexOptions.IgnoreCase);
+        Match match = regex.Match(effect);
+        if (!match.Success)
         {
-            command = eff[0].Trim();
-            argument = eff[1].Trim();
-            print("Splitting as command " + command + " argument " + argument);
-        }
-        else
-        {   
-            //if no ":" consider it a single word command
-            command = effect.Trim();
+            Debug.LogWarning("Effect string not in expected format: " + effect);
+            return;
         }
 
-        //I'm just reusing these variables below
-        EventSO e;
+        string effectName = match.Groups["effectName"].Value;
+        string argsContent = match.Groups["args"].Value;
+
+        // Split the arguments by comma if any.
+        string[] arguments = new string[0];
+        if (!string.IsNullOrEmpty(argsContent))
+        {
+            arguments = argsContent.Split(new char[] { ',' });
+            for (int i = 0; i < arguments.Length; i++)
+            {
+                arguments[i] = arguments[i].Trim();
+            }
+        }
+
         
-
-        switch (command)
+        // Process the effect
+        switch (effectName.ToLower())
         {
-            //destroy (the current event happens once in the game)
-            //removes the current card from the game
             case "destroy":
-                EventSO currentEvent = nextEvents[0];
-                if (allEvents.Contains(currentEvent))
-                    allEvents.Remove(currentEvent);
-                break;
-
-            //add:event
-            //finds the first inactive instance of a card by name and activates it + adds it to the deck
+                {
+                    // destroy doesn't require arguments.
+                    EventSO currentEvent = nextEvents[0];
+                    if (allEvents.Contains(currentEvent))
+                        allEvents.Remove(currentEvent);
+                    break;
+                }
             case "add":
-                e = GetInactiveEventByName(argument);
-                if (e != null)
                 {
-                    e.active = true;
-                    nextEvents.Add(e);
+                    // For 'add', we expect one argument: the event name.
+                    if (arguments.Length >= 1)
+                    {
+                        EventSO e = GetInactiveEventByName(arguments[0]);
+                        if (e != null)
+                        {
+                            e.active = true;
+                            nextEvents.Add(e);
+                        }
+                    }
+                    else
+                    {
+                        Debug.LogWarning("Add effect is missing an argument.");
+                    }
+                    break;
                 }
-                break;
-
-            //add:event
-            //finds the first event by name in the draw deck removes and deactivates it
             case "remove":
-                e = GetActiveEventByName(argument);
-                if (e != null)
                 {
-                    e.active = false;
-                    nextEvents.Remove(e);
+                    // For 'remove', we expect one argument: the event name.
+                    if (arguments.Length >= 1)
+                    {
+                        EventSO e = GetActiveEventByName(arguments[0]);
+                        if (e != null)
+                        {
+                            e.active = false;
+                            nextEvents.Remove(e);
+                        }
+                    }
+                    else
+                    {
+                        Debug.LogWarning("Remove effect is missing an argument.");
+                    }
+                    break;
                 }
-                break;
-
-            
-
-            //chain:event
-            //finds the first event by name and draw it immediately after the current one
-            //can be used to trigger end states for example
             case "chain":
-
-                //this function can be used to find multiple instances
-                List<EventSO> es = GetEventsByName(argument);
-                if (es.Count > 0 && nextEvents.Count>0)
                 {
-                    //insert in the the next spot
-                    nextEvents.Insert(1, es[0]);
+                    // For 'chain', we expect one argument: the event name.
+                    if (arguments.Length >= 1)
+                    {
+                        var es = GetEventsByName(arguments[0]);
+                        if (es.Count > 0 && nextEvents.Count > 0)
+                        {
+                            nextEvents.Insert(1, es[0]);
+                        }
+                    }
+                    else
+                    {
+                        Debug.LogWarning("Chain effect is missing an argument.");
+                    }
+                    break;
                 }
-                break;
+
+            //RandomChain(event1, event2, 30) means 30% chance of chaining event1 after this one 70% of event2
+            //both events have to be
+            case "randomchain":
+                {
+                    if (arguments.Length == 3)
+                    {
+                        if (float.TryParse(arguments[2], out float percent))
+                        {
+                            Debug.Log("RandomChain: "+ percent + "% chance of chaining event " + arguments[0] +" otherwise chain " + arguments[1]);
+
+                            string eventName = "";
+
+                            if(Random.Range(0, 100) < percent)
+                                eventName = arguments[0];
+                            else
+                                eventName = arguments[1];
+
+                            var es = GetEventsByName(eventName);
+                            if (es.Count > 0 && nextEvents.Count > 0)
+                            {
+                                nextEvents.Insert(1, es[0]);
+                            }
+                        }
+                        else
+                        {
+                            Debug.LogWarning("RandomChain: the 3 argument must be a number");
+                        }
+                    }
+                    else
+                    {
+                        Debug.LogWarning("RandomChain effect requires 3 arguments: Event1, Event2, percent");
+                    }
+                    break;
+                }
 
             default:
-                Debug.LogWarning("Warning I didn't recognize the special effect " + effect);
-                break;
+                {
+                    Debug.LogWarning("Unrecognized special effect: " + effectName);
+                    break;
+                }
         }
-
-
     }
-
 
     //check if an event with that name exists
     public bool EventExists(string eventName)
@@ -444,7 +503,7 @@ public class EventManager : MonoBehaviour
         }
 
         if (results.Count == 0)
-            Debug.Log("Warning: I can't find an event named "+eventName);
+            Debug.Log("Warning: I can't find an event named " + eventName);
 
         return results;
     }
