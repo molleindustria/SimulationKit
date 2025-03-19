@@ -451,6 +451,7 @@ public class EventManager : MonoBehaviour
                                 eventName = arguments[1];
 
                             var es = GetEventsByName(eventName);
+
                             if (es.Count > 0 && nextEvents.Count > 0)
                             {
                                 nextEvents.Insert(1, es[0]);
