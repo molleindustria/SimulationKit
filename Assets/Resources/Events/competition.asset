@@ -18,10 +18,12 @@ MonoBehaviour:
   condition: 
   number: 1
   active: 1
+  discarded: 0
   illustration: {fileID: 21300000, guid: 513ad2eaf0ca5ae40bce673d38383b68, type: 3}
   actions:
   - description: We'll catch up
     condition: 
     effects:
     - research--
-    specialEffects: []
+    specialEffects:
+    - Destroy()

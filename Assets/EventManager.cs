@@ -372,15 +372,15 @@ public class EventManager : MonoBehaviour
         switch (effectName.ToLower())
         {
             case "destroy":
-                {
+                
                     // Destroy() - removes an event from the game entirely (single use event)
                     EventSO currentEvent = nextEvents[0];
                     if (allEvents.Contains(currentEvent))
                         allEvents.Remove(currentEvent);
                     break;
-                }
+                
             case "add":
-                {
+                
                     //Add(eventName) - adds an inactive event to the draw deck
                     if (arguments.Length >= 1)
                     {
@@ -396,9 +396,9 @@ public class EventManager : MonoBehaviour
                         Debug.LogWarning("Add effect is missing an argument.");
                     }
                     break;
-                }
+                
             case "remove":
-                {
+                
                     // Remove(eventName) - removes an active event from the draw deck and sets
                     if (arguments.Length >= 1)
                     {
@@ -413,10 +413,10 @@ public class EventManager : MonoBehaviour
                         Debug.LogWarning("Remove effect is missing an argument.");
                     }
                     break;
-                }
+                
 
             case "activate":
-                {
+                
                     // Activate(eventName) - sets event active, eg to be added in the next reshuffle
                     if (arguments.Length >= 1)
                     {
@@ -429,10 +429,10 @@ public class EventManager : MonoBehaviour
                         Debug.LogWarning("Activate effect is missing an argument.");
                     }
                     break;
-                }
+                
 
             case "deactivate":
-                {
+                
                     // Activate(eventName) - sets event inactive, eg to be removed in the next reshuffle (single use event)
                     if (arguments.Length >= 1)
                     {
@@ -445,10 +445,10 @@ public class EventManager : MonoBehaviour
                         Debug.LogWarning("Activate effect is missing an argument.");
                     }
                     break;
-                }
+                
 
             case "chain":
-                {
+                
                     // For 'chain', we expect one argument: the event name.
                     if (arguments.Length >= 1)
                     {
@@ -463,12 +463,12 @@ public class EventManager : MonoBehaviour
                         Debug.LogWarning("Chain effect is missing an argument.");
                     }
                     break;
-                }
+                
 
             //RandomChain(event1, event2, 30) means 30% chance of chaining event1 after this one 70% of event2
             //both events have to be
             case "randomchain":
-                {
+                
                     if (arguments.Length == 3)
                     {
                         if (float.TryParse(arguments[2], out float percent))
@@ -499,13 +499,13 @@ public class EventManager : MonoBehaviour
                         Debug.LogWarning("RandomChain effect requires 3 arguments: Event1, Event2, percent");
                     }
                     break;
-                }
+                
 
             default:
-                {
+                
                     Debug.LogWarning("Unrecognized special effect: " + effectName);
                     break;
-                }
+                
         }
     }
 

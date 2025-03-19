@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   title: Gift
   description: Our research saves lives here's a 5000 gift from a donor
-  condition: research>=3
+  condition: research>=2&&money<10000
   number: 1
   active: 1
   discarded: 0

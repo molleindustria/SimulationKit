@@ -87,12 +87,17 @@ public static class Evaluator
         }
     }
 
-    // Evaluates boolean expressions; similar substitution is done.
+    // Evaluates boolean expressions; now supports compound boolean expressions
+    // using &&, ||, !, ==, != and parenthesis.
     public static bool EvaluateBool(string expression, List<Variable> vars)
     {
+        // Substitute variable names and random calls.
         expression = SubstituteVariables(expression, vars);
-        // Note: substitute random calls here too.
         expression = SubstituteRandoms(expression);
+
+        // Convert C#-style boolean operators into DataTable-friendly ones.
+        expression = ConvertBooleanOperators(expression);
+
         DataTable table = new DataTable();
         object result = table.Compute(expression, string.Empty);
         return Convert.ToBoolean(result);
@@ -132,6 +137,22 @@ public static class Evaluator
             float rnd = Mathf.Floor(UnityEngine.Random.Range(minVal, maxVal));
             return rnd.ToString();
         });
+    }
+
+    // Converts C#-style boolean operators to DataTable-friendly operators.
+    private static string ConvertBooleanOperators(string expression)
+    {
+        // Replace equality operators: "==" to "=".
+        expression = expression.Replace("==", "=");
+        // Replace inequality operators: "!=" to "<>".
+        expression = expression.Replace("!=", "<>");
+        // Replace logical AND: "&&" to " AND ".
+        expression = expression.Replace("&&", " AND ");
+        // Replace logical OR: "||" to " OR ".
+        expression = expression.Replace("||", " OR ");
+        // Replace logical NOT: use a regex to replace "!" not followed by "=" with "NOT ".
+        expression = Regex.Replace(expression, @"!(?!=)", "NOT ");
+        return expression;
     }
 
     // Helper: substitutes variable names with their current values.
