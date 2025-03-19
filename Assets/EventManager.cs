@@ -373,7 +373,7 @@ public class EventManager : MonoBehaviour
         {
             case "destroy":
                 {
-                    // destroy doesn't require arguments.
+                    // Destroy() - removes an event from the game entirely (single use event)
                     EventSO currentEvent = nextEvents[0];
                     if (allEvents.Contains(currentEvent))
                         allEvents.Remove(currentEvent);
@@ -381,14 +381,14 @@ public class EventManager : MonoBehaviour
                 }
             case "add":
                 {
-                    // For 'add', we expect one argument: the event name.
+                    //Add(eventName) - adds an inactive event to the draw deck
                     if (arguments.Length >= 1)
                     {
                         EventSO e = GetInactiveEventByName(arguments[0]);
                         if (e != null)
                         {
-                            e.active = true;
-                            nextEvents.Add(e);
+                            int randomIndex = Random.Range(1, nextEvents.Count + 1); // +1 so you can insert at the end too.
+                            nextEvents.Insert(randomIndex, e);
                         }
                     }
                     else
@@ -399,13 +399,12 @@ public class EventManager : MonoBehaviour
                 }
             case "remove":
                 {
-                    // For 'remove', we expect one argument: the event name.
+                    // Remove(eventName) - removes an active event from the draw deck and sets
                     if (arguments.Length >= 1)
                     {
                         EventSO e = GetActiveEventByName(arguments[0]);
                         if (e != null)
                         {
-                            e.active = false;
                             nextEvents.Remove(e);
                         }
                     }
@@ -415,6 +414,39 @@ public class EventManager : MonoBehaviour
                     }
                     break;
                 }
+
+            case "activate":
+                {
+                    // Activate(eventName) - sets event active, eg to be added in the next reshuffle
+                    if (arguments.Length >= 1)
+                    {
+                        EventSO e = GetInactiveEventByName(arguments[0]);
+                        if (e != null)
+                            e.active = true;
+                    }
+                    else
+                    {
+                        Debug.LogWarning("Activate effect is missing an argument.");
+                    }
+                    break;
+                }
+
+            case "deactivate":
+                {
+                    // Activate(eventName) - sets event inactive, eg to be removed in the next reshuffle (single use event)
+                    if (arguments.Length >= 1)
+                    {
+                        EventSO e = GetActiveEventByName(arguments[0]);
+                        if (e != null)
+                            e.active = false;
+                    }
+                    else
+                    {
+                        Debug.LogWarning("Activate effect is missing an argument.");
+                    }
+                    break;
+                }
+
             case "chain":
                 {
                     // For 'chain', we expect one argument: the event name.

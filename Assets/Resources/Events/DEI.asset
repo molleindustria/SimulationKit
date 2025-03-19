@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 69231d05094beea45b0de8c23bd01815, type: 3}
+  m_Name: DEI
+  m_EditorClassIdentifier: 
+  title: DEI
+  description: The new administration is targeting Diversity Equity Inclusion programs
+    across the USA.
+  condition: 
+  number: 1
+  active: 1
+  discarded: 0
+  illustration: {fileID: 0}
+  actions:
+  - description: Shut them down for now
+    condition: 
+    effects:
+    - students-=30
+    specialEffects: []
+  - description: Rename them and lay low
+    condition: 
+    effects: []
+    specialEffects: []
+  - description: Don't comply and release a bold statement
+    condition: 
+    effects: []
+    specialEffects:
+    - Add(DEI_attack)
+    - deactivate(DEI)
