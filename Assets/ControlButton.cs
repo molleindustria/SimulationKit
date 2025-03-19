@@ -35,16 +35,15 @@ public class ControlButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandl
     public Image overlay;
 
     //set automatically based on the initial bg color
-    private Color backgroundNormal = Color.gray;
-    [Tooltip("BG tint when mouse rolls over")]
-    public Color backgroundOver = Color.white;
-    [Tooltip("BG tint when mouse is pressed")]
-    public Color backgroundPressed = Color.white;
+    private Color backgroundNormal = Color.white;
+    [Tooltip("If left black is automatically calculated as brighter")]
+    public Color backgroundPressed = Color.black;
+
     [Tooltip("BG tint during the cool off")]
     public Color backgroundNonInteractable = Color.white;
 
     //set automatically based on the initial image color
-    private Color interactableTint = Color.gray;
+    private Color interactableTint = Color.white;
     [Tooltip("Image tint during the cool off")]
     public Color nonInteractableTint = Color.gray;
 
@@ -58,6 +57,9 @@ public class ControlButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandl
             Debug.LogWarning("Warning: the button " + gameObject.name + " can't find a control manager. It's meant to work with it");
 
         backgroundNormal = background.color;
+
+        if(backgroundPressed == Color.black)
+            backgroundPressed = ChangeColorBrightness(backgroundNormal, 0.2f);
 
         interactableTint = image.color;
 
@@ -143,29 +145,20 @@ public class ControlButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandl
         if (interactable && coolOffTimer <= 0)
         {
             manager.OnControlRelease(this);
-            background.color = backgroundOver;
         }
+
+        background.color = backgroundNormal;
     }
 
     // Called when the pointer enters the element.
     public void OnPointerEnter(PointerEventData eventData)
     {
-        if (interactable && coolOffTimer <= 0)
-        {
-            background.color = backgroundOver;
-        }
-
         manager.OnControlEnter(this);
     }
 
     // Called when the pointer exits the element.
     public void OnPointerExit(PointerEventData eventData)
     {
-        if (interactable && coolOffTimer <= 0)
-        {
-            background.color = backgroundNormal;
-        }
-
         manager.OnControlExit(this);
     }
 
@@ -178,5 +171,15 @@ public class ControlButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandl
             mapped = Mathf.Clamp(mapped, Mathf.Min(toLow, toHigh), Mathf.Max(toLow, toHigh));
 
         return mapped;
+    }
+
+
+    public Color ChangeColorBrightness(Color color, float brightnessIncrement = 0.1f)
+    {
+        Color.RGBToHSV(color, out float h, out float s, out float v);
+        v = Mathf.Clamp01(v + brightnessIncrement);
+        Color brighter = Color.HSVToRGB(h, s, v);
+        brighter.a = color.a;
+        return brighter;
     }
 }

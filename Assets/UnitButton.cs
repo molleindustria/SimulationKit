@@ -39,15 +39,13 @@ public class UnitButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
 
     //set automatically based on the initial bg color
     private Color backgroundNormal = Color.gray;
-    [Tooltip("BG tint when mouse rolls over")]
-    public Color backgroundOver = Color.white;
-    [Tooltip("BG tint when mouse is pressed")]
-    public Color backgroundPressed = Color.white;
+    [Tooltip("BG tint when mouse is pressed. If left black is automatically calculated as brighter")]
+    public Color backgroundPressed = Color.black;
     [Tooltip("BG tint during the cool off")]
     public Color backgroundNonInteractable = Color.white;
 
     //set automatically based on the initial image color
-    private Color interactableTint = Color.gray;
+    private Color interactableTint = Color.white;
     [Tooltip("Image tint during the cool off")]
     public Color nonInteractableTint = Color.gray;
 
@@ -61,6 +59,9 @@ public class UnitButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
             Debug.LogWarning("Warning: the button " + gameObject.name + " can't find a control manager. It's meant to work with it");
 
         backgroundNormal = background.color;
+
+        if (backgroundPressed == Color.black)
+            backgroundPressed = ChangeColorBrightness(backgroundNormal, 0.2f);
 
         interactableTint = image.color;
 
@@ -120,15 +121,16 @@ public class UnitButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
             //visualizing non interactable as greyed out image
             if (newState == false)
             {
+                //I have to communicate this to the manager
+                manager.DeselectUnitButton(this);
+
                 image.color = nonInteractableTint;
                 background.color = backgroundNonInteractable;
 
-                //I have to communicate this to the manager
-                manager.DeselectUnitButton(this);
             }
             else
             {
-                image.color = Color.white;
+                image.color = interactableTint;
                 background.color = backgroundNormal;
             }
         }
@@ -139,7 +141,7 @@ public class UnitButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
 
     public void Select()
     {
-        background.color = backgroundOver;
+        background.color = backgroundPressed;
     }
 
     public void Deselect()
@@ -178,5 +180,14 @@ public class UnitButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
             mapped = Mathf.Clamp(mapped, Mathf.Min(toLow, toHigh), Mathf.Max(toLow, toHigh));
 
         return mapped;
+    }
+
+    public Color ChangeColorBrightness(Color color, float brightnessIncrement = 0.1f)
+    {
+        Color.RGBToHSV(color, out float h, out float s, out float v);
+        v = Mathf.Clamp01(v + brightnessIncrement);
+        Color brighter = Color.HSVToRGB(h, s, v);
+        brighter.a = color.a;
+        return brighter;
     }
 }
